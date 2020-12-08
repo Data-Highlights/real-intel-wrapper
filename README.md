@@ -1,7 +1,7 @@
 ## real-intel-wrapper
 A wrapper library for integration with the Real Intel API
 
-<b>Installationg</b>
+<b>Installation</b>
 
 This library can be installed to your php project using composer
 
