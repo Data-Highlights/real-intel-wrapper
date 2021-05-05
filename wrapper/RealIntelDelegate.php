@@ -6,6 +6,7 @@ use Exception;
 use PHPUnit\TextUI\XmlConfiguration\IniSetting;
 use Wrapper\Core\Individual;
 use Wrapper\Objects\Consumer;
+use Wrapper\Objects\VerificationResult;
 
 /**
  * This is the main delegation class which communicates with the individual wrapper classes.
@@ -108,5 +109,27 @@ class RealIntelDelegate
     public function getConsumerTraceDOVResult(int $dovResultId): ?Consumer
     {
         return Individual::getConsumerTraceDOVResult($this->config, $dovResultId);
+    }
+
+    /**
+     * Initiates a request to validate an id document and selfie
+     *
+     * @param array $payload The required payload to do a verification as per the documentation at https://api.realintel.co.za/docs/realintel
+     * @return integer
+     */
+    public function doIDDocumentVerification(array $payload): int
+    {
+        return Individual::doIDDocumentVerification($this->config, $payload);
+    }
+
+    /**
+     * Retrieves the result of a ID document verification
+     *
+     * @param integer $resultId The id from the IDDocumentVerification call
+     * @return Consumer|null
+     */
+    public function getIDDocumentVerificationResult(int $resultId): ?VerificationResult
+    {
+        return Individual::getIDDocumentVerificationResult($this->config, $resultId);
     }
 }

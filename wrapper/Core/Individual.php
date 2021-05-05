@@ -8,13 +8,16 @@ use Wrapper\CallType;
 use Wrapper\Objects\Address;
 use Wrapper\Objects\Contact;
 use Wrapper\Objects\Consumer;
+use Wrapper\Objects\DocumentSummary;
 use Wrapper\Objects\DOVResult;
 use Wrapper\Objects\Employer;
 use Wrapper\Objects\Location;
 use Wrapper\Objects\EmailAddress;
+use Wrapper\Objects\SelfieSummary;
 use Wrapper\Objects\TelephoneNumber;
 use Wrapper\Objects\ShortTermInsurance;
 use Wrapper\Objects\VehicleFinanceAccount;
+use Wrapper\Objects\VerificationResult;
 
 class Individual
 {
@@ -403,5 +406,69 @@ class Individual
                 return null;
             } else throw new Exception($response['Message']);
         }
+    }
+
+    public static function doIDDocumentVerification(array $config, array $payload): int
+    {
+        $comm = new Communicator($config);
+
+        $response = $comm->post(CallType::VERIFICATION_ID_DOCUMENT, $payload);
+
+        if ($response['TransactionSuccessful']) {
+            if ($comm->showNotes && isset($response['NOTE'])) {
+                echo $response['NOTE'];
+            }
+
+            return $response['ResultID'];
+        } else throw new Exception($response['Message']);
+    }
+
+    public static function getIDDocumentVerificationResult(array $config, int $resultId): VerificationResult
+    {
+        $comm = new Communicator($config);
+        $params = [
+            "ResultID"      => $resultId
+        ];
+        $response = $comm->call(CallType::VERIFICATION_ID_DOCUMENT_RESULT, $params);
+
+        if ($response['TransactionSuccessful']) {
+            $documentSum = new DocumentSummary();
+            $documentSum->setResult($response['Result']['DocumentSummary']['Result']);
+            $documentSum->setResultReason($response['Result']['DocumentSummary']['ResultReason']);
+            $documentSum->setDocumentType($response['Result']['DocumentSummary']['DocumentType']);
+            $documentSum->setIdentityNumber($response['Result']['DocumentSummary']['IdentityNumber']);
+            $documentSum->setFirstName($response['Result']['DocumentSummary']['FirstName']);
+            $documentSum->setLastName($response['Result']['DocumentSummary']['LastName']);
+            $documentSum->setEnglishFirstName($response['Result']['DocumentSummary']['EnglishFirstName']);
+            $documentSum->setEnglishLastName($response['Result']['DocumentSummary']['EnglishLastName']);
+            $documentSum->setGender($response['Result']['DocumentSummary']['Gender']);
+            $documentSum->setAge($response['Result']['DocumentSummary']['Age']);
+            $documentSum->setDateOfBirth($response['Result']['DocumentSummary']['DateOfBirth']);
+            $documentSum->setDateOfExpiry($response['Result']['DocumentSummary']['DateOfExpiry']);
+            $documentSum->setDateOfIssue($response['Result']['DocumentSummary']['DateOfIssue']);
+            $documentSum->setIssuingState($response['Result']['DocumentSummary']['IssuingState']);
+            $documentSum->setIssuingStateCode($response['Result']['DocumentSummary']['IssuingStateCode']);
+            $documentSum->setDocumentNumber($response['Result']['DocumentSummary']['DocumentNumber']);
+            $documentSum->setAuthority($response['Result']['DocumentSummary']['Authority']);
+            $documentSum->setTermRemaining($response['Result']['DocumentSummary']['TermRemaining']);
+
+            $selfieSum = new SelfieSummary();
+            $selfieSum->setResult($response['Result']['SelfieSummary']['Result']);
+            $selfieSum->setResultReason($response['Result']['SelfieSummary']['ResultReason']);
+            $selfieSum->setConfidence((float) $response['Result']['SelfieSummary']['Confidence']);
+
+            $result = new VerificationResult();
+            $result->setVerificationResult($response['Result']['VerificationResult']);
+            $result->setReference($response['YourReference']);
+            $result->setTransactionId($response['TransactionID']);
+            $result->setDocumentSummary($documentSum);
+            $result->setSelfieSummary($selfieSum);
+
+            if ($comm->showNotes && isset($response['NOTE'])) {
+                echo $response['NOTE'];
+            }
+
+            return $result;
+        } else throw new Exception($response['Message']);
     }
 }

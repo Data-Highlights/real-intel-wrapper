@@ -10,4 +10,6 @@ class CallType
     public const INDIVIDUAL_TELEPHONE_TRACE             = "TelephoneTrace";
     public const INDIVIDUAL_CONSUMER_TRACE_DOV          = "ConsumerTraceDOV";
     public const INDIVIDUAL_CONSUMER_TRACE_DOV_RESULT   = "ConsumerTraceDOVGetResult";
+    public const VERIFICATION_ID_DOCUMENT               = "IDDocumentVerification";
+    public const VERIFICATION_ID_DOCUMENT_RESULT        = "IDDocumentVerificationResult";
 }

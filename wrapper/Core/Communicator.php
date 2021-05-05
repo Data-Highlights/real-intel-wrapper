@@ -102,4 +102,36 @@ class Communicator
 
         return json_decode($result, true);
     }
+
+    /**
+     * Posts a json body to the API
+     *
+     * @param string $endpoint The API endpoint to call
+     * @param array $params The parameters that will be converted to json
+     * @return array
+     */
+    public function post(string $endpoint, array $params): array 
+    {
+        $url = "https://api.realintel.co.za/json/" . ($this->sandbox ? "sandbox/" : "") . "individual/" . $endpoint;
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+        $headers = array();
+        $headers[] = "Authorization: Basic " . $this->authKey;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            throw new Exception(curl_error($ch));
+        }
+
+        curl_close ($ch);
+
+        return json_decode($result, true);
+    }
 }
